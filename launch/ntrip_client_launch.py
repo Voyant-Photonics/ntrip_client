@@ -4,38 +4,51 @@ from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 from launch.actions import SetEnvironmentVariable
 
+
 def generate_launch_description():
-      return LaunchDescription([
-          # Declare arguments with default values
-          DeclareLaunchArgument('namespace',             default_value='/'),
-          DeclareLaunchArgument('node_name',             default_value='ntrip_client'),
-          DeclareLaunchArgument('debug',                 default_value='false'),
-          DeclareLaunchArgument('host',                  default_value='20.185.11.35'),
-          DeclareLaunchArgument('port',                  default_value='2101'),
-          DeclareLaunchArgument('mountpoint',            default_value='VRS_RTCM3'),
-          DeclareLaunchArgument('ntrip_version',         default_value='None'),
-          DeclareLaunchArgument('authenticate',          default_value='True'),
-          DeclareLaunchArgument('username',              default_value='user'),
-          DeclareLaunchArgument('password',              default_value='pass'),
-          DeclareLaunchArgument('ssl',                   default_value='False'),
-          DeclareLaunchArgument('cert',                  default_value='None'),
-          DeclareLaunchArgument('key',                   default_value='None'),
-          DeclareLaunchArgument('ca_cert',               default_value='None'),
-          DeclareLaunchArgument('rtcm_message_package',  default_value='rtcm_msgs'),
+    return LaunchDescription([
+        # Declare arguments with default values
+        DeclareLaunchArgument('namespace',             default_value='/'),
+        DeclareLaunchArgument(
+            'node_name',             default_value='ntrip_client'),
+        DeclareLaunchArgument('debug',                 default_value='false'),
+        DeclareLaunchArgument(
+            'host',                  default_value='20.185.11.35'),
+        DeclareLaunchArgument('port',                  default_value='2101'),
+        DeclareLaunchArgument(
+            'mountpoint',            default_value='VRS_RTCM3'),
+        DeclareLaunchArgument('ntrip_version',         default_value='None'),
+        DeclareLaunchArgument('authenticate',          default_value='True'),
+        DeclareLaunchArgument('username',              default_value='user'),
+        DeclareLaunchArgument('password',              default_value='pass'),
+        DeclareLaunchArgument('ssl',                   default_value='False'),
+        DeclareLaunchArgument('cert',                  default_value='None'),
+        DeclareLaunchArgument('key',                   default_value='None'),
+        DeclareLaunchArgument('ca_cert',               default_value='None'),
+        DeclareLaunchArgument('rtcm_message_package',
+                              default_value='rtcm_msgs'),
+        DeclareLaunchArgument('rtcm_frame_id',         default_value='odom'),
+        DeclareLaunchArgument('nmea_max_length',       default_value='128'),
+        DeclareLaunchArgument('nmea_min_length',       default_value='3'),
+        DeclareLaunchArgument('reconnect_attempt_max', default_value='10'),
+        DeclareLaunchArgument(
+            'reconnect_attempt_wait_seconds', default_value='5'),
+        DeclareLaunchArgument('rtcm_timeout_seconds',  default_value='4'),
 
-          # Pass an environment variable to the node
-          SetEnvironmentVariable(name='NTRIP_CLIENT_DEBUG', value=LaunchConfiguration('debug')),
+        # Pass an environment variable to the node
+        SetEnvironmentVariable(name='NTRIP_CLIENT_DEBUG',
+                               value=LaunchConfiguration('debug')),
 
-          # ******************************************************************
-          # NTRIP Client Node
-          # ******************************************************************
-          Node(
-                name=LaunchConfiguration('node_name'),
-                namespace=LaunchConfiguration('namespace'),
-                package='ntrip_client',
-                executable='ntrip_ros.py',
-                parameters=[
-                  {
+        # ******************************************************************
+        # NTRIP Client Node
+        # ******************************************************************
+        Node(
+            name=LaunchConfiguration('node_name'),
+            namespace=LaunchConfiguration('namespace'),
+            package='ntrip_client',
+            executable='ntrip_ros.py',
+            parameters=[
+                {
                     # Required parameters used to connect to the NTRIP server
                     'host': LaunchConfiguration('host'),
                     'port': LaunchConfiguration('port'),
@@ -62,26 +75,26 @@ def generate_launch_description():
                     'ca_cert': LaunchConfiguration('ca_cert'),
 
                     # Not sure if this will be looked at by other ndoes, but this frame ID will be added to the RTCM messages published by this node
-                    'rtcm_frame_id': 'odom',
+                    'rtcm_frame_id': LaunchConfiguration('rtcm_frame_id'),
 
                     # Optional parameters that will allow for longer or shorter NMEA messages. Standard max length for NMEA is 82
-                    'nmea_max_length': 128,
-                    'nmea_min_length': 3,
+                    'nmea_max_length': LaunchConfiguration('nmea_max_length'),
+                    'nmea_min_length': LaunchConfiguration('nmea_min_length'),
 
                     # Use this parameter to change the type of RTCM message published by the node. Defaults to "mavros_msgs", but we also support "rtcm_msgs"
                     'rtcm_message_package': LaunchConfiguration('rtcm_message_package'),
 
                     # Will affect how many times the node will attempt to reconnect before exiting, and how long it will wait in between attempts when a reconnect occurs
-                    'reconnect_attempt_max': 10,
-                    'reconnect_attempt_wait_seconds': 5,
+                    'reconnect_attempt_max': LaunchConfiguration('reconnect_attempt_max'),
+                    'reconnect_attempt_wait_seconds': LaunchConfiguration('reconnect_attempt_wait_seconds'),
 
                     # How many seconds is acceptable in between receiving RTCM. If RTCM is not received for this duration, the node will attempt to reconnect
-                    'rtcm_timeout_seconds': 4
-                  }
-                ],
-                # Uncomment the following section and replace "/gx5/nmea/sentence" with the topic you are sending NMEA on if it is not the one we requested
-                #remappings=[
-                #  ("nmea", "/gx5/nmea/sentence")
-                #],
-          )
-      ])
+                    'rtcm_timeout_seconds': LaunchConfiguration('rtcm_timeout_seconds')
+                }
+            ],
+            # Uncomment the following section and replace "/gx5/nmea/sentence" with the topic you are sending NMEA on if it is not the one we requested
+            # remappings=[
+            #  ("nmea", "/gx5/nmea/sentence")
+            # ],
+        )
+    ])

@@ -72,6 +72,12 @@ This node currently only has three topics of interest:
 * **/nmea**: This node will subscribe on this topic and receive [NMEA sentence messages](http://docs.ros.org/en/api/nmea_msgs/html/msg/Sentence.html) which it will forward to the NTRIP server. This is always needed when using a virtual NTRIP server or an NTRIP device
 * **/fix**: This serves the same exact purpose as `/nmea`, but facilitates receiving global position that is not in NMEA format
 
+## Version history (fork)
+
+- 2025-09-18 (maintenance):
+  - Added launch parameters for reconnect attempt max, wait seconds, frame id, nmea max length, nmea min length, and rtcm message package.
+
+
 ## License
 ntrip_client is released under the MIT License - see the `LICENSE` file in the source distribution.
 
